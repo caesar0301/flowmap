@@ -1,6 +1,6 @@
 /**
  * Created by chenxm on 12/23/14.
  *
- * Package consisting of utilities to process Hangzhou dataset.
+ * Package of tools to process Hangzhou mobile data.
  */
 package sjtu.omnilab.kalin.hz;
