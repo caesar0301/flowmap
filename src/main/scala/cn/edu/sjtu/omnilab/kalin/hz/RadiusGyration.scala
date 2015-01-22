@@ -1,4 +1,4 @@
-package sjtu.omnilab.kalin.hz
+package cn.edu.sjtu.omnilab.kalin.hz
 
 import org.apache.log4j.{Logger, Level}
 import org.apache.spark.{SparkContext, SparkConf}

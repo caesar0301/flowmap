@@ -1,7 +1,8 @@
-package sjtu.omnilab.kalin.hz
+package cn.edu.sjtu.omnilab.kalin.hz
 
 /**
- * Created by chenxm on 12/21/14.
+ * The input data are based on the output of `hzm_etl.pig` script at
+ * https://github.com/caesar0301/paper-mstd-code/blob/master/datatools/hzm_etl.pig
  */
 
 import org.apache.spark.SparkContext._

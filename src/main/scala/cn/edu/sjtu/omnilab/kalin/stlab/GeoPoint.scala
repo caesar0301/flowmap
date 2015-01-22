@@ -1,4 +1,4 @@
-package sjtu.omnilab.kalin.stlab
+package cn.edu.sjtu.omnilab.kalin.stlab
 
 /**
  * Class that represents the weighted spatial point as `(lat, lon, weight)`

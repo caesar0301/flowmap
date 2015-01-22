@@ -3,4 +3,4 @@
  *
  * Package of tools to process Hangzhou mobile data.
  */
-package sjtu.omnilab.kalin.hz;
+package cn.edu.sjtu.omnilab.kalin.hz;

@@ -1,4 +1,4 @@
-package sjtu.omnilab.kalin.stlab
+package cn.edu.sjtu.omnilab.kalin.stlab
 
 /**
  * Created by chenxm on 12/24/14.
