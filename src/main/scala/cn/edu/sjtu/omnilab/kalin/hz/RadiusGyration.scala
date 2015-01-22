@@ -1,8 +1,8 @@
 package cn.edu.sjtu.omnilab.kalin.hz
 
-import org.apache.log4j.{Logger, Level}
-import org.apache.spark.{SparkContext, SparkConf}
-import sjtu.omnilab.kalin.stlab.{RadiusGyration, GeoPoint, GeoMidpoint}
+import cn.edu.sjtu.omnilab.kalin.stlab.{GeoPoint, RadiusGyration}
+import org.apache.log4j.{Level, Logger}
+import org.apache.spark.{SparkConf, SparkContext}
 
 /**
  * Calculate radius of gyration of individuals

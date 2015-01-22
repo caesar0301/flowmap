@@ -3,7 +3,7 @@ package cn.edu.sjtu.omnilab.kalin.stlab
 import org.apache.spark.rdd.RDD
 import org.apache.spark.SparkContext._
 
-import sjtu.omnilab.kalin.stlab.STUtils._
+import cn.edu.sjtu.omnilab.kalin.stlab.STUtils._
 
 /**
  * Calculate the radius of gyration of individual with multiple locations.

@@ -2,7 +2,7 @@ package cn.edu.sjtu.omnilab.kalin.stlab
 
 import org.apache.spark.SparkContext._
 import org.apache.spark.rdd.RDD
-import sjtu.omnilab.kalin.stlab.STUtils._
+import cn.edu.sjtu.omnilab.kalin.stlab.STUtils._
 
 /**
  * Created by chenxm on 12/23/14.

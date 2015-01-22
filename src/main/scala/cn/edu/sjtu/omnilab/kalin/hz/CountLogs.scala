@@ -1,6 +1,6 @@
 package cn.edu.sjtu.omnilab.kalin.hz
 
-import org.apache.spark.{SparkContext, SparkConf}
+import org.apache.spark.{SparkConf, SparkContext}
 
 /**
  * Created by chenxm on 12/22/14.

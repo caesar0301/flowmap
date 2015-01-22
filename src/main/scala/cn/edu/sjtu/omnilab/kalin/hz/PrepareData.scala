@@ -5,10 +5,10 @@ package cn.edu.sjtu.omnilab.kalin.hz
  * https://github.com/caesar0301/paper-mstd-code/blob/master/datatools/hzm_etl.pig
  */
 
+import cn.edu.sjtu.omnilab.kalin.utils.RDDMultipleTextOutputFormat
 import org.apache.spark.SparkContext._
 import org.apache.spark._
 import org.joda.time.DateTime
-import sjtu.omnilab.kalin.utils.RDDMultipleTextOutputFormat
 
 /**
  * Prepare Hangzhou Datasets: splitting into multiple days.
