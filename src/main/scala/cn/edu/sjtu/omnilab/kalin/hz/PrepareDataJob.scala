@@ -13,7 +13,7 @@ import org.joda.time.DateTime
 /**
  * Prepare Hangzhou Datasets: splitting into multiple days.
  */
-object PrepareData {
+object PrepareDataJob {
 
   /**
    * Main portal.

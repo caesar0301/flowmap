@@ -23,6 +23,7 @@ class GeoMidpoint extends Serializable {
    * @return
    */
   def avgLatLon(points: RDD[(String, GeoPoint)]): RDD[(String, GeoPoint)] = {
+    
     // eliminate the problems of the International Date Line
     val carMidPoints = cartesian(points).cache()
 
@@ -53,6 +54,7 @@ class GeoMidpoint extends Serializable {
       else if (lon < -180) lon += 360
       GeoPoint(lat, lon)
     }
+    
     midPoints
   }
 
@@ -63,6 +65,7 @@ class GeoMidpoint extends Serializable {
    *         the weight value takes default value == 1.
    */
   def cartesian(points: RDD[(String, GeoPoint)]): RDD[(String, GeoPoint)] = {
+    
     // convert lat/lon to cartesian coordinates
     val carPoints = points.map { case (user, point) =>
       val lat = deg2rad(point.lat)
