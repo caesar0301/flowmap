@@ -100,12 +100,4 @@ class GeoMidpoint extends Serializable {
     midPoints
   }
 
-  /**
-   * This method uses a mathematical algorithm to find the exact point that
-   * minimizes the total travel distance from all locations in 'Your Places'.
-   * @param RDD
-   */
-  //  def centerMinDist(points: RDD[(String, GeoPoint)]): RDD[(String, GeoPoint)] = {
-  //
-  //  }
 }
