@@ -57,11 +57,15 @@ object TidyMovementJob {
 
     // smash user identities by regenerating ids and add location lon/lat
     cleaned.keyBy(_._1)
+      // replace with smashed user ids
       .join(userID).values
       .map { case ((imsi, time, bs), (userID)) => (bs, (time, userID)) }
+      // replace with smashed cell ids
       .join(cellID).values
-      .map { case ((time, userID), (cellID)) =>
-        "%d,%.03f,%d".format(userID, time, cellID) }
+      .map { case ((time, userID), (cellID)) => (userID, time, cellID)}
+      // order individual logs in time
+      .sortBy(tuple => (tuple._1, tuple._2))
+      .map { tuple => "%d,%.03f,%d".format(tuple._1, tuple._2, tuple._3) }
       .saveAsTextFile(output)
 
     // stop spark engine
