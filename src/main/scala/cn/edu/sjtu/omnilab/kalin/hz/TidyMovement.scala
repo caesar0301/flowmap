@@ -11,22 +11,13 @@ import scala.collection.mutable.ListBuffer
  */
 class TidyMovement extends Serializable {
 
-  def tidy(input: RDD[String]): RDD[(String, Double, Long)] = {
-
-    val logs = input.map(_.split("\t"))
-      .sortBy(f => f(DataSchema.TTime))
-      // select fields indicating movement
-      .map { line =>
-        val imsi = line(DataSchema.IMSI)
-        val ttime = line(DataSchema.TTime).toDouble
-        val bs = line(DataSchema.BS).toLong
-        (imsi, ttime, bs)
-      }
+  def tidy(input: RDD[(String, Double, String)], interval: Int = 60)
+  : RDD[(String, Double, String)] = {
 
     // group by users and tidy logs for each user
-    val tidyLogRDD = logs.groupBy(_._1)
+    val tidyLogRDD = input.groupBy(_._1)
       .map { case (user, logs) => {
-        val movement = compressMovement(logs)
+        val movement = compressMovement(logs, interval)
         (user, movement)
       }}
 
@@ -37,17 +28,18 @@ class TidyMovement extends Serializable {
       }
   }
   
-  private def compressMovement(logsPerUser: Iterable[(String, Double, Long)])
-  : Array[(String, Double, Long)] = {
+  private def compressMovement(logsPerUser: Iterable[(String, Double, String)],
+                                interval: Int)
+  : Array[(String, Double, String)] = {
 
-    val logBuf = ListBuffer[(String, Double, Long)]()
-    val tidyLogs = ListBuffer[(String, Double, Long)]()
+    val logBuf = ListBuffer[(String, Double, String)]()
+    val tidyLogs = ListBuffer[(String, Double, String)]()
 
     // clear redundant movement in a buffer
-    def clearBuffer(buf: ListBuffer[(String, Double, Long)]): Unit = {
-      var lastBS: Long = -1
+    def clearBuffer(buf: ListBuffer[(String, Double, String)]): Unit = {
+      var lastBS: String = null
       for ( i <- buf ){
-        if( lastBS == -1 || i._3 != lastBS )
+        if( null == lastBS || i._3 != lastBS )
           tidyLogs += i
         lastBS = i._3
       }
@@ -59,7 +51,7 @@ class TidyMovement extends Serializable {
       if (logBuf.length > 0) {
         // clear buffer if time interval larger than one minute
         val timeDiff = log._2 - logBuf(0)._2
-        if (timeDiff >= 60 )
+        if (timeDiff >= interval )
           clearBuffer(logBuf)
       }
 

@@ -15,7 +15,7 @@ Build
     
 or with dependencies
 
-    $ sbt
+    $ sbt assembly
     
 Run testing
 -----------

@@ -24,24 +24,36 @@ object TidyMovementJob {
     val spark = new SparkContext(conf)
 
     // read logs from data warehouse
-    val inputRDD = spark.textFile(input).cache
+    val inputRDD = spark.textFile(input)
+      .map(_.split("\t"))
+      .cache
 
     // unique user IDs
-    val userID = inputRDD.map( line => line.split("\t"))
+    val userID = inputRDD
       .map( _(DataSchema.IMSI) )
       .distinct
       .zipWithUniqueId // (imsi, userID) 
       .cache
 
     // geographic location of base stations
-    val cellID = inputRDD.map( line => line.split("\t"))
-      .map( _(DataSchema.BS).toLong )
+    val cellID = inputRDD
+      .map( _(DataSchema.BS) )
       .distinct
       .zipWithUniqueId // (bs, cellID)
       .cache
+    
+    // generate user movement history
+    val movement = inputRDD.map { tuple => {
+      val imsi = tuple(DataSchema.IMSI)
+      val ttime = tuple(DataSchema.TTime).toDouble
+      val bs = tuple(DataSchema.BS)
+      (imsi, ttime, bs)
+    }}
+      // sort by time
+      .sortBy(_._2)
 
     // compress movement history: (imsi, time, baseStation)
-    val cleaned = new TidyMovement().tidy(inputRDD)
+    val cleaned = new TidyMovement().tidy(movement)
 
     // smash user identities by regenerating ids and add location lon/lat
     cleaned.keyBy(_._1)
