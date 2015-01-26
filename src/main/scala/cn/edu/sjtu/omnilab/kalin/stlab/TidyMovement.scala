@@ -1,6 +1,5 @@
-package cn.edu.sjtu.omnilab.kalin.hz
+package cn.edu.sjtu.omnilab.kalin.stlab
 
-import org.apache.log4j.{Level, Logger}
 import org.apache.spark.rdd.RDD
 
 import scala.collection.mutable.ListBuffer

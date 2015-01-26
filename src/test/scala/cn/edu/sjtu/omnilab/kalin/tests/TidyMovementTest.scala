@@ -1,6 +1,7 @@
 package cn.edu.sjtu.omnilab.kalin.tests
 
-import cn.edu.sjtu.omnilab.kalin.hz.{DataSchema, TidyMovement}
+import cn.edu.sjtu.omnilab.kalin.hz.DataSchema
+import cn.edu.sjtu.omnilab.kalin.stlab.TidyMovement
 import org.apache.spark.SparkContext.rddToPairRDDFunctions
 import org.apache.spark.rdd.RDD
 

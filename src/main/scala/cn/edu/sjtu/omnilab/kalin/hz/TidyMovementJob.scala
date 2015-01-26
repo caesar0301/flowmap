@@ -1,5 +1,6 @@
 package cn.edu.sjtu.omnilab.kalin.hz
 
+import cn.edu.sjtu.omnilab.kalin.stlab.TidyMovement
 import org.apache.spark.{SparkContext, SparkConf}
 import org.apache.spark.SparkContext.rddToPairRDDFunctions
 
@@ -7,6 +8,9 @@ import org.apache.spark.SparkContext.rddToPairRDDFunctions
  * Export Hangzhou mobile data in the long format.
  */
 object TidyMovementJob {
+  
+  val userMapOut = ".umap"
+  val bsMapOut = ".bsmap"
   
   def main(args: Array[String]) {
 
@@ -34,13 +38,29 @@ object TidyMovementJob {
       .distinct
       .zipWithUniqueId // (imsi, userID) 
       .cache
+    
+    // save imsi-userid map for later use
+    userID.map(t => "%d,%s".format(t._2, t._1))
+      .saveAsTextFile(output + userMapOut)
 
     // geographic location of base stations
     val cellID = inputRDD
-      .map( _(DataSchema.BS) )
-      .distinct
-      .zipWithUniqueId // (bs, cellID)
+      .map { parts =>
+      val bs = parts(DataSchema.BS)
+      val lon = parts(DataSchema.LON)
+      val lat = parts(DataSchema.LAT)
+      (bs, lon, lat)
+    }.distinct
+      .zipWithUniqueId // ((bs, lon, lat), cellID))
       .cache
+    
+    // save bs-celldi map for later use
+    cellID.map(t => "%d,%s,%s,%s".format(t._2, t._1._1, t._1._2, t._1._3))
+      .saveAsTextFile(output + bsMapOut)
+
+    val shortCellID = cellID.map { case ((bs, lon, lat), cellID) =>
+      (bs, cellID)
+    }
     
     // generate user movement history
     val movement = inputRDD.map { tuple => {
@@ -48,21 +68,22 @@ object TidyMovementJob {
       val ttime = tuple(DataSchema.TTime).toDouble
       val bs = tuple(DataSchema.BS)
       (imsi, ttime, bs)
-    }}
-      // sort by time
-      .sortBy(_._2)
+    }}.sortBy(_._2)  // sort by time
 
     // compress movement history: (imsi, time, baseStation)
     val cleaned = new TidyMovement().tidy(movement)
 
     // smash user identities by regenerating ids and add location lon/lat
     cleaned.keyBy(_._1)
+      
       // replace with smashed user ids
       .join(userID).values
       .map { case ((imsi, time, bs), (userID)) => (bs, (time, userID)) }
+      
       // replace with smashed cell ids
-      .join(cellID).values
+      .join(shortCellID).values
       .map { case ((time, userID), (cellID)) => (userID, time, cellID)}
+      
       // order individual logs in time
       .sortBy(tuple => (tuple._1, tuple._2))
       .map { tuple => "%d,%.03f,%d".format(tuple._1, tuple._2, tuple._3) }

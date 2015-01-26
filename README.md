@@ -32,6 +32,7 @@ In this project, package `cn.edu.sjtu.omnilab.stlab` undertakes more general
 works on processing spatiotemporal data points ("RDD" in parentheses means that
 method is feed data in Spark RDD container).
 
+* `STUtils`: useful small toolkit for transformation of spatiotemporal data.
 * `GeoPoint`: basic representation of geographic points in LON/LAT or Cartesian
 coordinate.
 * `GeoMidPoint` (RDD): calculate the geographic midpoint given a series of points.
@@ -39,7 +40,7 @@ Two algorithms (average lon/lat and Cartesian) are implemented with nearly
 the same result in most scenarios.
 * `RadiusGyration` (RDD): calculate the radius of gyration (RG) from individual
 movement history.
-* `STUtils`: useful small toolkit for transformation of spatiotemporal data.
+* `TidyMovement` (RDD): remove redundant information in users' movement history.
     
 Available Spark Jobs
 --------------------
@@ -49,4 +50,9 @@ Package `cn.edu.sjtu.omnilab.kalin.hz` contains jobs for HZ mobile data:
 * `CountLogsJob`: count the number of logs of feed input;
 * `PrepareDataJob`: separate input logs into isolated sets by day;
 * `RadiusGyrationJob`: calculate the radius of gyration from human movement data;
+* `GeoRangeJob`: give basic dimensions of data, including geo-range, unique
+logs/users/cells numbers;
+* `FilterDataGeo`: filter data to leave out logs outside given geo-range,
+specifically out the range of HZ administrative area;
 * `TidyMovementJob`: filter out redundant movement history to keep data brief;
+* `SampleUsersJob`: sample users of high data quality out of the total population;
