@@ -3,7 +3,7 @@ set -e
 
 ############################
 SCALA_VERSION="2.10"
-APP_NAME="hz.TidyMovementJob"
+APP_NAME="d4d.TidyMovementJob"
 ############################
 
 if [ $# -lt 2 ]; then
@@ -13,7 +13,7 @@ fi
 
 input=$1
 output=$2
-rm -rf "$output*" || echo "INFO: there is no $output ..."
+rm -rf $output || echo "INFO: there is no $output ..."
 
 # build and run job
 sbt assembly
