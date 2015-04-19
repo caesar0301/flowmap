@@ -1,9 +1,7 @@
 package cn.edu.sjtu.omnilab.kalin.d4d
 
-import cn.edu.sjtu.omnilab.kalin.stlab.TidyMovement
+import cn.edu.sjtu.omnilab.kalin.stlab.{STUtils, MPoint, TidyMovement}
 import org.apache.spark.{SparkContext, SparkConf}
-import org.joda.time.DateTime
-import org.joda.time.format.{DateTimeFormat, DateTimeFormatter}
 
 object TidyMovementJob {
 
@@ -24,16 +22,15 @@ object TidyMovementJob {
     
     val formatedRDD = inputRDD.map(parts => {
       val uid = parts(0)
-      val fmt = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")
-      val time = fmt.parseDateTime(parts(1)).getMillis / 1000.0
+      val time = STUtils.ISOToUnix(parts(1)) / 1000.0
       val loc = parts(2)
-      (uid, time, loc)
+      MPoint(uid, time, loc)
     })
     
     val tidyMove = new TidyMovement().tidy(formatedRDD)
     tidyMove
-      .sortBy(tuple => (tuple._1, tuple._2))
-      .map(tuple => "%s,%.3f,%s".format(tuple._1, tuple._2, tuple._3))
+      .sortBy(tuple => (tuple.uid, tuple.time))
+      .map(tuple => "%s,%.3f,%s".format(tuple.uid, tuple.time, tuple.location))
       .saveAsTextFile(output)
     
     spark.stop()

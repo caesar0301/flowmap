@@ -1,8 +1,8 @@
 package cn.edu.sjtu.omnilab.kalin.stlab
 
-/**
- * Created by chenxm on 12/24/14.
- */
+import org.joda.time.DateTime
+import org.joda.time.format.DateTimeFormat
+
 object STUtils {
 
   /**
@@ -40,5 +40,24 @@ object STUtils {
     val c = math.acos(math.sin(rlat1)*math.sin(rlat2) +
     math.cos(rlat1)*math.cos(rlat2)*math.cos(rlon2-rlon1))
     c * earthRadius
+  }
+
+  /**
+   * Converts ISO8601 datetime strings to Unix Time Longs (milliseconds)
+   * @param isotime
+   * @return
+   */
+  def ISOToUnix(isotime: String): Long = {
+    val fmt = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")
+    fmt.parseDateTime(isotime).getMillis
+  }
+
+  /**
+   * Converts Unix Time Longs (milliseconds) to ISO8601 datetime strings
+   * @param unixtime
+   * @return
+   */
+  def UnixToISO(unixtime: Long): String = {
+    new DateTime(unixtime).formatted("yyyy-MM-dd HH:mm:ss")
   }
 }
