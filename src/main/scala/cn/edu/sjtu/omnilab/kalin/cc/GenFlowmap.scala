@@ -33,7 +33,7 @@ object GenFlowmap {
       STPoint(uid, time, loc)
     })
     
-    new Flowmap().draw(formatedRDD, interval)
+    Flowmap.draw(formatedRDD, interval)
       .filter(_.NumUnique >= minnum)
       .sortBy(m => (m.interval, m.FROM, m.TO))
       .map(m => "%d,%s,%s,%d,%d".format(m.interval, m.FROM, m.TO, m.NumTotal, m.NumUnique))

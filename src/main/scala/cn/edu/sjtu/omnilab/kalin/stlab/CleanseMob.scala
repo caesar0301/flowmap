@@ -169,44 +169,41 @@ object CleanseMob extends Serializable {
    * @return
    */
   def addHomeStatesForUser(logs: Iterable[MPoint], offset: Int): Iterable[MPoint] = {
-    val home = extractHomeForUser(logs, offset)
-    if (home == null)
-      return logs
-
     def localHour(time: Double): Long = {time.toLong / 3600 + offset.toLong}
     def localDay(time: Double): Long = {(time.toLong / 3600 + offset.toLong) / 24}
 
+    val home = extractHomeForUser(logs, offset)
     var added = Array[MPoint]()
     var lastDay: Long = -1
     for ( log <- logs) {
       val day = localDay(log.time)
       val day3am = (day * 24 + 3) * 3600
-      if ( day != lastDay ) {
+      if ( day != lastDay && home != null) {
         added = added :+ MPoint(log.uid, day3am-offset*3600-1, home)
         added = added :+ MPoint(log.uid, day3am-offset*3600+1, home)
       }
 
       lastDay = day
     }
-    (added ++ logs).sortBy(_.time).toIterable
+    (added ++ logs).sortBy(_.time)
   }
 
   /**
    * Extract the location of home according to user's movement history.
-   * Home is identified by the most visited locations during 0-6 o'clock AM
+   * Home is identified by the most visited locations during 22PM-07AM o'clock AM
    * @param logs movement history for a user
    * @param offset offset hours of recorded time zone
    * @return
    */
   def extractHomeForUser(logs: Iterable[MPoint], offset: Int): String = {
     val mean = 3
-    val std = 3
+    val std = 4
     val gdist = new Gaussian(mean, std)
 
     val night = logs.toArray
       .map(log => (log.location, log.time.toLong / 3600)).distinct // add hourly interval
       .map(log => (log._1, (log._2 + offset) % 24)) // convert hour interval to time of day
-      .filter(log => log._2 >= 0 && log._2 <= 6) // include night interval
+      .filter(log => (log._2 >= 0 && log._2 <= 7) || log._2 >= 22) // include night interval
 
     if (night.size == 0)
       return null

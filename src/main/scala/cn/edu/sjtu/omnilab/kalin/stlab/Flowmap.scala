@@ -7,7 +7,7 @@ import scala.collection.mutable
 
 case class MapEdge(interval: Integer, FROM: String, TO: String, NumUnique: Long, NumTotal: Long)
 
-class Flowmap extends Serializable{
+object Flowmap extends Serializable{
 
   def draw(input: RDD[STPoint], interval: Integer = 3600): RDD[MapEdge] = {
 
