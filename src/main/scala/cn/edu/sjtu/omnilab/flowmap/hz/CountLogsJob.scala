@@ -1,4 +1,4 @@
-package cn.edu.sjtu.omnilab.kalin.hz
+package cn.edu.sjtu.omnilab.flowmap.hz
 
 import org.apache.spark.{SparkConf, SparkContext}
 

@@ -1,8 +1,9 @@
-package cn.edu.sjtu.omnilab.kalin.stlab
+package cn.edu.sjtu.omnilab.flowmap.stlab
 
 import org.apache.commons.math3.analysis.function.Gaussian
 import org.apache.spark.rdd.RDD
 import org.apache.spark.SparkContext._
+import org.apache.spark.storage.StorageLevel
 
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
@@ -51,18 +52,16 @@ object CleanseMob extends Serializable {
       && m._2._4 >= minTotalLoc)
 
     // group by users and tidy logs for each user
-    var clean = input.keyBy(_.uid).join(validUsers)
+    input.keyBy(_.uid).join(validUsers)
       .map { case (uid, (log, stat)) => log }
       .groupBy(_.uid)
-      .flatMap { case (user, logs) => informativeCleansing(logs) }
-
-    // add `staying home` states for each user
-    if (addNight) {
-      clean = clean.groupBy(_.uid)
-        .flatMap{ case (user, logs) => addHomeStatesForUser(logs, tzOffset)}
-    }
-
-    clean
+      .flatMap { case (user, logs) => {
+        val etled = informativeCleansing(logs)
+        if (addNight) // add `staying home` states for each user
+          addHomeStatesForUser(etled, tzOffset)
+        else
+          etled
+      }}
   }
 
   /**
@@ -175,16 +174,16 @@ object CleanseMob extends Serializable {
     val home = extractHomeForUser(logs, offset)
     var added = Array[MPoint]()
     var lastDay: Long = -1
-    for ( log <- logs) {
+
+    logs.foreach(log => {
       val day = localDay(log.time)
       val day3am = (day * 24 + 3) * 3600
       if ( day != lastDay && home != null) {
         added = added :+ MPoint(log.uid, day3am-offset*3600-1, home)
         added = added :+ MPoint(log.uid, day3am-offset*3600+1, home)
       }
-
       lastDay = day
-    }
+    })
     (added ++ logs).sortBy(_.time)
   }
 

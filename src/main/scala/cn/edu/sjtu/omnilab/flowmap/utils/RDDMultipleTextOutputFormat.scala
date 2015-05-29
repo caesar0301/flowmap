@@ -1,4 +1,4 @@
-package cn.edu.sjtu.omnilab.kalin.utils
+package cn.edu.sjtu.omnilab.flowmap.utils
 
 import org.apache.hadoop.io.NullWritable
 import org.apache.hadoop.mapred.lib.MultipleTextOutputFormat

@@ -1,4 +1,4 @@
-package cn.edu.sjtu.omnilab.kalin.tests
+package cn.edu.sjtu.omnilab.flowmap.tests
 
 import org.apache.spark.{SparkConf, SparkContext}
 import org.specs2.mutable.SpecificationWithJUnit

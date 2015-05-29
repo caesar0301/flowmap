@@ -1,11 +1,11 @@
-package cn.edu.sjtu.omnilab.kalin.hz
+package cn.edu.sjtu.omnilab.flowmap.hz
 
 /**
  * The input data are based on the output of `hzm_etl.pig` script at
  * https://github.com/caesar0301/paper-mstd-code/blob/master/datatools/hzm_etl.pig
  */
 
-import cn.edu.sjtu.omnilab.kalin.utils.RDDMultipleTextOutputFormat
+import cn.edu.sjtu.omnilab.flowmap.utils.RDDMultipleTextOutputFormat
 import org.apache.spark.SparkContext._
 import org.apache.spark._
 import org.joda.time.DateTime

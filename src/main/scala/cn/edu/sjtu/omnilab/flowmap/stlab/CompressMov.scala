@@ -1,4 +1,4 @@
-package cn.edu.sjtu.omnilab.kalin.stlab
+package cn.edu.sjtu.omnilab.flowmap.stlab
 
 import org.apache.spark.rdd.RDD
 import scala.collection.mutable.ListBuffer

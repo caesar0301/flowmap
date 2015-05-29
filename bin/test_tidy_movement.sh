@@ -18,7 +18,7 @@ TARGET=$(find target/scala-$SCALA_VERSION/ -name *assembly* | head -1)
 
 spark-submit \
     --master local \
-    --class cn.edu.sjtu.omnilab.kalin.hz.TidyMovementJob \
+    --class cn.edu.sjtu.omnilab.flowmap.hz.TidyMovementJob \
     $TARGET $input $output
 
 # check out results

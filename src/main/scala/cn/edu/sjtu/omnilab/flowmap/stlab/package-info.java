@@ -3,4 +3,4 @@
  *
  * Package of general processing utility about spatial-temporal data.
  */
-package cn.edu.sjtu.omnilab.kalin.stlab;
+package cn.edu.sjtu.omnilab.flowmap.stlab;

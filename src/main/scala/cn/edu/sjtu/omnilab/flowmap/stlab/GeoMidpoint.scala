@@ -1,8 +1,8 @@
-package cn.edu.sjtu.omnilab.kalin.stlab
+package cn.edu.sjtu.omnilab.flowmap.stlab
 
 import org.apache.spark.SparkContext._
 import org.apache.spark.rdd.RDD
-import cn.edu.sjtu.omnilab.kalin.stlab.STUtils._
+import cn.edu.sjtu.omnilab.flowmap.stlab.STUtils._
 
 /**
  * Created by chenxm on 12/23/14.

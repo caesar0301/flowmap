@@ -1,8 +1,8 @@
-package cn.edu.sjtu.omnilab.kalin.tests
+package cn.edu.sjtu.omnilab.flowmap.tests
 
 import java.util.Locale
 
-import cn.edu.sjtu.omnilab.kalin.stlab.STUtils
+import cn.edu.sjtu.omnilab.flowmap.stlab.STUtils
 import org.scalatest.{Matchers, FlatSpec}
 
 class STUtilsTest extends FlatSpec with Matchers {

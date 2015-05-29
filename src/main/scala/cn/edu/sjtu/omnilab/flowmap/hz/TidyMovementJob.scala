@@ -1,6 +1,6 @@
-package cn.edu.sjtu.omnilab.kalin.hz
+package cn.edu.sjtu.omnilab.flowmap.hz
 
-import cn.edu.sjtu.omnilab.kalin.stlab.{MPoint, CleanseMob}
+import cn.edu.sjtu.omnilab.flowmap.stlab.{MPoint, CleanseMob}
 import org.apache.spark.storage.StorageLevel
 import org.apache.spark.{SparkContext, SparkConf}
 import org.apache.spark.SparkContext.rddToPairRDDFunctions
@@ -28,16 +28,13 @@ object TidyMovementJob {
     // read logs from data warehouse
     val inputRDD = spark.textFile(input)
       .map(_.split("\t"))
-      .persist(StorageLevel.MEMORY_AND_DISK_SER)
+      .persist(StorageLevel.DISK_ONLY)
 
     // unique user IDs
     val userID = inputRDD
       .map( tuple => imsiPatch(tuple(DataSchema.IMSI)) )
-      .distinct
-      .zipWithUniqueId // (imsi, userID) 
-      .persist(StorageLevel.MEMORY_AND_DISK_SER)
-
-    // save imsi-userid map for later use
+      .distinct.zipWithUniqueId // (imsi, userID)
+    spark.broadcast(userID)
     userID.map(t => "%d,%s".format(t._2, t._1))
       .saveAsTextFile(output + ".umap")
 
@@ -48,24 +45,23 @@ object TidyMovementJob {
       val lon = parts(DataSchema.LON)
       val lat = parts(DataSchema.LAT)
       (bs, lon, lat)
-    }.distinct
-      .zipWithUniqueId // ((bs, lon, lat), cellID))
-      .persist(StorageLevel.MEMORY_AND_DISK_SER)
-    
-    // save bs-celldi map for later use
+    }.distinct.zipWithUniqueId // ((bs, lon, lat), cellID))
+
+    spark.broadcast(cellID)
     cellID.map(t => "%d,%s,%s,%s".format(t._2, t._1._1, t._1._2, t._1._3))
       .saveAsTextFile(output + ".bsmap")
 
     val shortCellID = cellID.map { case ((bs, lon, lat), cellID) => (bs, cellID) }
-      .persist(StorageLevel.MEMORY_AND_DISK_SER)
-    
+    spark.broadcast(shortCellID)
+
     // generate user movement history
-    val movement = inputRDD.map { tuple => {
-      val imsi = imsiPatch(tuple(DataSchema.IMSI))
-      val ttime = tuple(DataSchema.TTime).toDouble
-      val bs = tuple(DataSchema.BS)
-      MPoint(uid=imsi, time=ttime, location=bs)
-    }}.sortBy(_.time)
+    val movement = inputRDD.map {
+      tuple => {
+        val imsi = imsiPatch(tuple(DataSchema.IMSI))
+        val ttime = tuple(DataSchema.TTime).toDouble
+        val bs = tuple(DataSchema.BS)
+        MPoint(uid=imsi, time=ttime, location=bs)
+      }}.sortBy(_.time)
 
     // compress movement history: (imsi, time, baseStation)
     val cleaned = CleanseMob.cleanse(movement, minDays=14*0.75, tzOffset=8)
@@ -76,10 +72,7 @@ object TidyMovementJob {
       .map { case (mp, (userID)) => (mp.location, (mp.time, userID)) }
       // replace with smashed cell ids
       .join(shortCellID).values
-      .map { case ((time, userID), (cellID)) => (userID, time, cellID)}
-      // order individual logs in time
-      .sortBy(tuple => (tuple._1, tuple._2))
-      .map { tuple => "%d,%.03f,%d".format(tuple._1, tuple._2, tuple._3) }
+      .map { case ((time, userID), (cellID)) => "%d,%.03f,%d".format(userID, time, cellID)}
       .saveAsTextFile(output)
 
     spark.stop()

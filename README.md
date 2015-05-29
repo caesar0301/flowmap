@@ -45,7 +45,7 @@ movement history.
 Available Spark Jobs
 --------------------
 
-Package `cn.edu.sjtu.omnilab.kalin.hz` contains jobs for HZ mobile data:
+Package `cn.edu.sjtu.omnilab.flowmap.hz` contains jobs for HZ mobile data:
 
 * `CountLogsJob`: count the number of logs of feed input;
 * `PrepareDataJob`: separate input logs into isolated sets by day;
@@ -57,6 +57,6 @@ specifically out the range of HZ administrative area;
 * `TidyMovementJob`: filter out redundant movement history to keep data brief;
 * `SampleUsersJob`: sample users of high data quality out of the total population;
 
-Package `cn.edu.sjtu.omnilab.kalin.d4d` contains jobs for D4D data:
+Package `cn.edu.sjtu.omnilab.flowmap.d4d` contains jobs for D4D data:
 
 * `TidyMovementJob`: filter out redundant movement history to keep data brief;

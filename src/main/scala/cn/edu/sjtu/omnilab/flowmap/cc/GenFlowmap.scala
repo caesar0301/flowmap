@@ -1,6 +1,6 @@
-package cn.edu.sjtu.omnilab.kalin.cc
+package cn.edu.sjtu.omnilab.flowmap.cc
 
-import cn.edu.sjtu.omnilab.kalin.stlab._
+import cn.edu.sjtu.omnilab.flowmap.stlab._
 import org.apache.spark.{SparkConf, SparkContext}
 
 object GenFlowmap {

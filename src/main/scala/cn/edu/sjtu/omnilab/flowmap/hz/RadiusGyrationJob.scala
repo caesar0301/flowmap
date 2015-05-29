@@ -1,6 +1,6 @@
-package cn.edu.sjtu.omnilab.kalin.hz
+package cn.edu.sjtu.omnilab.flowmap.hz
 
-import cn.edu.sjtu.omnilab.kalin.stlab.{GeoPoint, RadiusGyration}
+import cn.edu.sjtu.omnilab.flowmap.stlab.{GeoPoint, RadiusGyration}
 import org.apache.log4j.{Level, Logger}
 import org.apache.spark.{SparkConf, SparkContext}
 

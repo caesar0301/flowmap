@@ -1,6 +1,6 @@
-package cn.edu.sjtu.omnilab.kalin.d4d
+package cn.edu.sjtu.omnilab.flowmap.d4d
 
-import cn.edu.sjtu.omnilab.kalin.stlab.{STUtils, MPoint, CleanseMob}
+import cn.edu.sjtu.omnilab.flowmap.stlab.{STUtils, MPoint, CleanseMob}
 import org.apache.spark.{SparkContext, SparkConf}
 
 object TidyMovementJob {

@@ -1,4 +1,4 @@
-package cn.edu.sjtu.omnilab.kalin.stlab
+package cn.edu.sjtu.omnilab.flowmap.stlab
 
 import java.util.Locale
 

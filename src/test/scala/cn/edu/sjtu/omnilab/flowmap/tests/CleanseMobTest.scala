@@ -1,7 +1,7 @@
-package cn.edu.sjtu.omnilab.kalin.tests
+package cn.edu.sjtu.omnilab.flowmap.tests
 
-import cn.edu.sjtu.omnilab.kalin.hz.DataSchema
-import cn.edu.sjtu.omnilab.kalin.stlab.{MPoint, CleanseMob}
+import cn.edu.sjtu.omnilab.flowmap.hz.DataSchema
+import cn.edu.sjtu.omnilab.flowmap.stlab.{MPoint, CleanseMob}
 import org.apache.spark.SparkContext.rddToPairRDDFunctions
 import org.apache.spark.rdd.RDD
 

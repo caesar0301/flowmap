@@ -12,7 +12,7 @@ HZ_LOGS=/user/chenxm/hz_city_logs
 TIDY_MOVE=/user/chenxm/hz_tidy_movement
 SAMPLE_USERS=/user/chenxm/hz_sample_users
 
-PACKAGE=cn.edu.sjtu.omnilab.kalin
+PACKAGE=cn.edu.sjtu.omnilab.flowmap
 TARGET=kalin-assembly-0.1.1.jar
 
 hadoop_rm $HZ_LOGS || echo "Clean trash ..."
