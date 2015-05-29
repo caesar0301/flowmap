@@ -1,6 +1,6 @@
 package cn.edu.sjtu.omnilab.kalin.hz
 
-import cn.edu.sjtu.omnilab.kalin.stlab.{MPoint, TidyMovement}
+import cn.edu.sjtu.omnilab.kalin.stlab.{MPoint, CleanseMob}
 import org.apache.spark.storage.StorageLevel
 import org.apache.spark.{SparkContext, SparkConf}
 import org.apache.spark.SparkContext.rddToPairRDDFunctions
@@ -28,15 +28,15 @@ object TidyMovementJob {
     // read logs from data warehouse
     val inputRDD = spark.textFile(input)
       .map(_.split("\t"))
-      .cache
+      .persist(StorageLevel.MEMORY_AND_DISK_SER)
 
     // unique user IDs
     val userID = inputRDD
-      .map( _(DataSchema.IMSI) )
+      .map( tuple => imsiPatch(tuple(DataSchema.IMSI)) )
       .distinct
       .zipWithUniqueId // (imsi, userID) 
-      .cache
-    
+      .persist(StorageLevel.MEMORY_AND_DISK_SER)
+
     // save imsi-userid map for later use
     userID.map(t => "%d,%s".format(t._2, t._1))
       .saveAsTextFile(output + ".umap")
@@ -50,7 +50,7 @@ object TidyMovementJob {
       (bs, lon, lat)
     }.distinct
       .zipWithUniqueId // ((bs, lon, lat), cellID))
-      .cache
+      .persist(StorageLevel.MEMORY_AND_DISK_SER)
     
     // save bs-celldi map for later use
     cellID.map(t => "%d,%s,%s,%s".format(t._2, t._1._1, t._1._2, t._1._3))
@@ -61,14 +61,14 @@ object TidyMovementJob {
     
     // generate user movement history
     val movement = inputRDD.map { tuple => {
-      val imsi = tuple(DataSchema.IMSI)
+      val imsi = imsiPatch(tuple(DataSchema.IMSI))
       val ttime = tuple(DataSchema.TTime).toDouble
       val bs = tuple(DataSchema.BS)
       MPoint(uid=imsi, time=ttime, location=bs)
     }}.sortBy(_.time)
 
     // compress movement history: (imsi, time, baseStation)
-    val cleaned = new TidyMovement().tidy(movement)
+    val cleaned = CleanseMob.cleanse(movement, minDays=14*0.75, tzOffset=8)
     // smash user identities by regenerating ids and add location lon/lat
     cleaned.keyBy(_.uid)
       // replace with smashed user ids
@@ -85,4 +85,12 @@ object TidyMovementJob {
     spark.stop()
   }
 
+  /**
+   * Cleanse IMSI with tail junk data
+   */
+  def imsiPatch(imsi: String): String = {
+    if ( imsi.contains(','))
+      return imsi.split(',')(0)
+    return imsi
+  }
 }

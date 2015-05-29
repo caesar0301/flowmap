@@ -3,6 +3,9 @@ package cn.edu.sjtu.omnilab.kalin.stlab
 import org.apache.spark.rdd.RDD
 import scala.collection.mutable.ListBuffer
 
+case class STPoint(uid: String, time: Double, loc: String)
+case class STPoint2(uid: String, stime: Double, etime: Double, loc: String)
+
 /**
  * Compress individual's movement in form of (UserID, Time, LocID);
  * Merge continuous records into sessions as (UserID, STime, ETime, LocID).
@@ -13,11 +16,11 @@ import scala.collection.mutable.ListBuffer
  */
 class CompressMov extends Serializable {
 
-  def doCompress(input: RDD[(String, Double, String)], gap: Double = 6 * 3600)
-  : RDD[(String, Double, Double, String)] = {
+  def doCompress(input: RDD[STPoint], gap: Double = 6 * 3600):
+    RDD[STPoint2] = {
 
     // group by users and merge duplicated locations
-    val compressed = input.groupBy(_._1)
+    val compressed = input.groupBy(_.uid)
     .flatMap { case (user, logs) => {
       val compressedLogs = ListBuffer[(Double, Double, String)]()
       var lastLoc: String = null
@@ -27,8 +30,8 @@ class CompressMov extends Serializable {
       var stime: Double = -1
 
       for (log <- logs) {
-        curLoc = log._3
-        curTime = log._2
+        curLoc = log.loc
+        curTime = log.time
 
         if ( lastLoc == null ) {
           stime = curTime
@@ -45,7 +48,7 @@ class CompressMov extends Serializable {
         lastTime = curTime
       }
 
-      compressedLogs.map( value => (user, value._1, value._2, value._3))
+      compressedLogs.map( value => STPoint2(user, value._1, value._2, value._3))
     }}
 
     compressed

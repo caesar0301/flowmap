@@ -10,6 +10,8 @@ libraryDependencies += "org.apache.spark" %% "spark-core" % "1.2.0" % "provided"
 
 libraryDependencies += "joda-time" % "joda-time" % "2.6"
 
+libraryDependencies += "org.apache.commons" % "commons-math3" % "3.5"
+
 // For testing
 
 libraryDependencies += "log4j" % "log4j" % "1.2.17" % "test"
