@@ -182,8 +182,8 @@ object CleanseMob extends Serializable {
         val day = localDay(log.time)
         if (day != lastDay) {
           val day3am = day * 24 + 3
-          added = added :+ MPoint(log.uid, (day3am-offset)*3600-1, home)
-          added = added :+ MPoint(log.uid, (day3am-offset)*3600+1, home)
+          added = added :+ MPoint(log.uid, (day3am-offset)*3600, home) // 03:00 AM
+          added = added :+ MPoint(log.uid, (day3am-offset+24)*3600, home) // 03:00 AM (+1 day)
         }
         lastDay = day
       }
