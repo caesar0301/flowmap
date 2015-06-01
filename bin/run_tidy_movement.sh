@@ -13,9 +13,8 @@ echo "Output: $output"
 
 TARGET=$(find $(dirname $0) -name flowmap-assembly* | head -1)
 
-spark-submit2
+spark-submit2 \
     --class cn.edu.sjtu.omnilab.flowmap.hz.TidyMovementJob \
-    $(find $(dirname $0) -name flowmap-assembly* | head -1) \
-    $input $output
+    $TARGET $input $output
 
 hadoop fs -tail $output/part-00000

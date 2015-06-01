@@ -23,6 +23,7 @@ object CleanseMob extends Serializable {
    * 2. having unique displacement larger than 2
    * 3. having more than 5 observations in observed days on average
    * 4. having more than 6 semi-hour intervals in observed days on average
+   * 5. having `staying home` states
    *
    * Data improvement:
    * 1. add `staying home` states for each user at 3:00 AM
@@ -56,11 +57,11 @@ object CleanseMob extends Serializable {
       .map { case (uid, (log, stat)) => log }
       .groupBy(_.uid)
       .flatMap { case (user, logs) => {
-        val etled = informativeCleansing(logs)
+        val sorted = logs.toArray.sortBy(_.time)
+        var etled = informativeCleansing(sorted)
         if (addNight) // add `staying home` states for each user
-          addHomeStatesForUser(etled, tzOffset)
-        else
-          etled
+          etled = addHomeStatesForUser(etled, tzOffset)
+        etled
       }}
   }
 
@@ -171,20 +172,26 @@ object CleanseMob extends Serializable {
     def localHour(time: Double): Long = {time.toLong / 3600 + offset.toLong}
     def localDay(time: Double): Long = {(time.toLong / 3600 + offset.toLong) / 24}
 
-    val home = extractHomeForUser(logs, offset)
+    val sorted = logs.toArray.sortBy(_.time)
+    val home = extractHomeForUser(sorted, offset)
     var added = Array[MPoint]()
     var lastDay: Long = -1
 
-    logs.foreach(log => {
-      val day = localDay(log.time)
-      val day3am = (day * 24 + 3) * 3600
-      if ( day != lastDay && home != null) {
-        added = added :+ MPoint(log.uid, day3am-offset*3600-1, home)
-        added = added :+ MPoint(log.uid, day3am-offset*3600+1, home)
+    if (home != null) {
+      for ( log <- sorted ) {
+        val day = localDay(log.time)
+        if (day != lastDay) {
+          val day3am = day * 24 + 3
+          added = added :+ MPoint(log.uid, (day3am-offset)*3600-1, home)
+          added = added :+ MPoint(log.uid, (day3am-offset)*3600+1, home)
+        }
+        lastDay = day
       }
-      lastDay = day
-    })
-    (added ++ logs).sortBy(_.time)
+      (added.distinct ++ logs).sortBy(_.time)
+    } else {
+      // remove users without home states
+      added
+    }
   }
 
   /**

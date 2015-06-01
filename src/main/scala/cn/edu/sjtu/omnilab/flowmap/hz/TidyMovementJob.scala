@@ -26,54 +26,32 @@ object TidyMovementJob {
     val spark = new SparkContext(conf)
 
     // read logs from data warehouse
-    val inputRDD = spark.textFile(input)
-      .map(_.split("\t"))
-      .persist(StorageLevel.DISK_ONLY)
-
-    // unique user IDs
-    val userID = inputRDD
-      .map( tuple => imsiPatch(tuple(DataSchema.IMSI)) )
-      .distinct.zipWithUniqueId // (imsi, userID)
-    spark.broadcast(userID)
-    userID.map(t => "%d,%s".format(t._2, t._1))
-      .saveAsTextFile(output + ".umap")
-
-    // geographic location of base stations
-    val cellID = inputRDD
-      .map { parts =>
-      val bs = parts(DataSchema.BS)
-      val lon = parts(DataSchema.LON)
-      val lat = parts(DataSchema.LAT)
-      (bs, lon, lat)
-    }.distinct.zipWithUniqueId // ((bs, lon, lat), cellID))
-
-    spark.broadcast(cellID)
-    cellID.map(t => "%d,%s,%s,%s".format(t._2, t._1._1, t._1._2, t._1._3))
-      .saveAsTextFile(output + ".bsmap")
-
-    val shortCellID = cellID.map { case ((bs, lon, lat), cellID) => (bs, cellID) }
-    spark.broadcast(shortCellID)
-
-    // generate user movement history
-    val movement = inputRDD.map {
-      tuple => {
+    val movement = spark.textFile(input)
+      .map { line => {
+        val tuple = line.split("\t")
         val imsi = imsiPatch(tuple(DataSchema.IMSI))
         val ttime = tuple(DataSchema.TTime).toDouble
-        val bs = tuple(DataSchema.BS)
+        val bs = "%s,%s,%s".format(tuple(DataSchema.BS),tuple(DataSchema.LON),tuple(DataSchema.LAT))
         MPoint(uid=imsi, time=ttime, location=bs)
-      }}.sortBy(_.time)
+      }}.filter(x => x.uid != null && x.uid.size > 0)
 
     // compress movement history: (imsi, time, baseStation)
-    val cleaned = CleanseMob.cleanse(movement, minDays=14*0.75, tzOffset=8)
-    // smash user identities by regenerating ids and add location lon/lat
-    cleaned.keyBy(_.uid)
-      // replace with smashed user ids
-      .join(userID).values
-      .map { case (mp, (userID)) => (mp.location, (mp.time, userID)) }
-      // replace with smashed cell ids
-      .join(shortCellID).values
-      .map { case ((time, userID), (cellID)) => "%d,%.03f,%d".format(userID, time, cellID)}
-      .saveAsTextFile(output)
+    val cleaned = CleanseMob.cleanse(movement, minDays=1, tzOffset=8, addNight=true)
+
+    // smash the identity of users and base stations
+    val anonyUsers = cleaned.groupBy(_.uid).zipWithUniqueId
+      .flatMap { case ((uid, logs), ucode) => logs.map(log => MPoint(ucode.toString, log.time, log.location))}
+    val anonyLocs = anonyUsers.groupBy(_.location).zipWithUniqueId
+
+    // save base station mapping
+    anonyLocs.flatMap { case ((loc, logs), lcode) =>
+      logs.map(log => "%s,%s".format(lcode, log.location))}
+      .distinct.saveAsTextFile(output + ".bm")
+
+    // save cleaned user movement
+    anonyLocs.flatMap { case ((loc, logs), lcode) =>
+      logs.map(log => "%s,%.03f,%s".format(log.uid, log.time, lcode))}
+      .sortBy(m => m).saveAsTextFile(output)
 
     spark.stop()
   }

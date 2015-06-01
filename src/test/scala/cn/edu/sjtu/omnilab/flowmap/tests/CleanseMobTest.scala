@@ -50,7 +50,7 @@ class CleanseMobTest extends SparkJobSpec {
       val inputRDD = sc.textFile(testFile)
       val movement = extractMov(inputRDD)
       val cleaned = CleanseMob.cleanse(movement, 0, 0, 0, 0, 8, true)
-      cleaned.count() == 6
+      cleaned.count() == 4
     }
 
   }
