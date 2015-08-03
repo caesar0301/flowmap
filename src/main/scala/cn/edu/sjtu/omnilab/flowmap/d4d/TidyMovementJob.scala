@@ -27,7 +27,7 @@ object TidyMovementJob {
       MPoint(uid, time, loc)
     })
     
-    val tidyMove = CleanseMob.cleanse(formatedRDD, minDays=14*0.75)
+    val tidyMove = CleanseMob.cleanse(formatedRDD, minDays=14*0.75, tzOffset=0, addNight=true)
     tidyMove
       .sortBy(tuple => (tuple.uid, tuple.time))
       .map(tuple => "%s,%.3f,%s".format(tuple.uid, tuple.time, tuple.location))

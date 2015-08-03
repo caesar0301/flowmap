@@ -36,7 +36,7 @@ object TidyMovementJob {
       }}.filter(x => x.uid != null && x.uid.size > 0)
 
     // compress movement history: (imsi, time, baseStation)
-    val cleaned = CleanseMob.cleanse(movement, minDays=1, tzOffset=8, addNight=true)
+    val cleaned = CleanseMob.cleanse(movement, minDays=14*0.75, tzOffset=8, addNight=true)
 
     // smash the identity of users and base stations
     val anonyUsers = cleaned.groupBy(_.uid).zipWithUniqueId
